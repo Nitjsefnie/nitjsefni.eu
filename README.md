@@ -3,7 +3,8 @@
 Source of [https://nitjsefni.eu/](https://nitjsefni.eu/) — my personal landing page.
 
 A single hand-rolled HTML file plus a self-hosted webfont. Pure HTML + CSS,
-no JavaScript, no third-party requests at page-load time, no analytics. The
+no browser-side JavaScript, no third-party requests at page-load time, no
+analytics. The
 "GitHub stats" widgets on the page are SVGs rendered by a separate cron job;
 the renderer lives in [`Nitjsefnie/gh-widgets`](https://github.com/Nitjsefnie/gh-widgets)
 and writes the SVGs into `/widgets/` on this server.
