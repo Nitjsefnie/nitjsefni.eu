@@ -12,7 +12,7 @@ and writes the SVGs into `/widgets/` on this server.
 
 | Path | What |
 |---|---|
-| `index.html` | The whole page. ~12 KB. |
+| `index.html` | The whole page. ~14 KB. |
 | `fonts/` | Five [JetBrains Mono](https://github.com/JetBrains/JetBrainsMono) woff2 weights (Apache-2.0, ~95 KB each). Served from `/fonts/` instead of Google Fonts so the page has zero third-party requests. |
 
 ## License

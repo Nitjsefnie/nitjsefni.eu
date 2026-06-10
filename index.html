@@ -3,6 +3,16 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="color-scheme" content="dark">
+  <meta name="theme-color" content="#1a1b26">
+  <meta name="description" content="nitjsefnie — computer science @ Masaryk University, Brno. Python, optimization for its own sake, self-hosted GitHub stat widgets. Pure HTML + CSS, no JS, no analytics.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://nitjsefni.eu/">
+  <meta property="og:title" content="nitjsefnie@ns118886">
+  <meta property="og:description" content="Terminal-flavoured personal page. Pure HTML + CSS, no JS, no analytics, self-hosted font.">
+  <link rel="canonical" href="https://nitjsefni.eu/">
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='12' fill='%231a1b26'/%3E%3Ctext x='7' y='46' font-family='monospace' font-size='36' fill='%239ece6a'%3E%3E%3C/text%3E%3Crect x='34' y='17' width='15' height='31' fill='%23f7768e'/%3E%3C/svg%3E">
+  <link rel="preload" as="font" type="font/woff2" href="/fonts/JetBrainsMono-Regular.woff2" crossorigin>
   <title>nitjsefnie@ns118886</title>
   <style>
     /* Self-hosted JetBrains Mono — no third-party font requests */
@@ -12,6 +22,7 @@
     @font-face { font-family: 'JetBrains Mono'; font-style: normal; font-weight: 700; src: url('/fonts/JetBrainsMono-Bold.woff2')     format('woff2'); font-display: swap; }
     @font-face { font-family: 'JetBrains Mono'; font-style: italic; font-weight: 400; src: url('/fonts/JetBrainsMono-Italic.woff2')   format('woff2'); font-display: swap; }
     :root {
+      color-scheme: dark;
       --bg:        #1a1b26;
       --bg-soft:   #16161e;
       --fg:        #c0caf5;
@@ -170,6 +181,11 @@
     @keyframes blink {
       50% { background: transparent; }
     }
+    @media (prefers-reduced-motion: reduce) {
+      .cursor { animation: none; }
+      .output a, .widgets a { transition: none; }
+      .widgets a:hover { transform: none; }
+    }
 
     /* widget images */
     .widgets {
@@ -178,11 +194,30 @@
       gap: 0.6rem;
       margin: 0 0 1.5rem;
     }
+    .widgets a {
+      display: block;
+      line-height: 0;
+      border-radius: 6px;
+      transition: transform 120ms ease, box-shadow 120ms ease;
+    }
+    .widgets a:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 16px rgba(122,162,247,0.15);
+    }
     .widgets img {
       display: block;
       max-width: 100%;
       height: auto;
       border-radius: 6px;
+    }
+    .widget-note a {
+      color: var(--cyan);
+      text-decoration: none;
+      border-bottom: 1px dashed transparent;
+    }
+    .widget-note a:hover {
+      color: var(--green);
+      border-bottom-color: var(--green);
     }
     .widget-note {
       margin: 0.4rem 0 0;
@@ -221,11 +256,11 @@
 <main>
 
   <pre class="motd">
-<span class="line"><span class="key">Linux</span> ns118886 <span class="val">5.10.0-42-amd64</span> #1 SMP Debian — <span class="key">welcome</span></span>
+<span class="line"><span class="key">Linux</span> ns118886 <span class="val">5.10.0-37-amd64</span> #1 SMP Debian — <span class="key">welcome</span></span>
 <span class="line"><span class="key">page:</span> <span class="val">pure html + css, no js, self-hosted font</span></span>
   </pre>
 
-  <div class="rule">────────────────────────────────────────────────────────────</div>
+  <div class="rule" aria-hidden="true">────────────────────────────────────────────────────────────</div>
 
   <div class="prompt">
     <span class="user">nitjsefnie</span><span class="at">@</span><span class="host">ns118886</span><span class="at">:</span><span class="path">~</span><span class="sigil">$</span>
@@ -248,9 +283,11 @@
   </div>
 
   <ul class="projects output">
+    <li><span class="k"><a href="https://github.com/Nitjsefnie/gh-widgets">gh-widgets/</a></span>         <span class="v">self-hosted github stat svgs — what's powering the cards above</span></li>
     <li><span class="k"><a href="https://github.com/Nitjsefnie/Nonogram">Nonogram/</a></span>           <span class="v">picross solver with numba-jit line DP + a corpus</span></li>
     <li><span class="k"><a href="https://github.com/Nitjsefnie/ccusage-dashboard">ccusage-dashboard/</a></span>  <span class="v">fastapi + react dashboard for claude code spend</span></li>
     <li><span class="k"><a href="https://github.com/Nitjsefnie/stratzscraper">stratzscraper/</a></span>      <span class="v">distributed dota 2 scraper over stratz's graphql</span></li>
+    <li><span class="k"><a href="https://github.com/Nitjsefnie/nitjsefni.eu">nitjsefni.eu/</a></span>        <span class="v">source of this page — html, css, fonts. proves the "no js" claim</span></li>
   </ul>
 
   <div class="prompt">
@@ -270,22 +307,22 @@
   </div>
 
   <div class="widgets output">
-    <img src="/widgets/stats.svg"     alt="github stats"        loading="lazy">
-    <img src="/widgets/streak.svg"    alt="contribution streak" loading="lazy">
-    <img src="/widgets/languages.svg" alt="top languages"       loading="lazy">
-    <p class="widget-note">self-hosted · rendered hourly · embeddable</p>
+    <a href="https://github.com/Nitjsefnie/gh-widgets" rel="noopener" aria-label="see how the github stats widget is made"><img src="/widgets/stats.svg"     alt="github stats"        width="420" height="180" loading="lazy"></a>
+    <a href="https://github.com/Nitjsefnie/gh-widgets" rel="noopener" aria-label="see how the contribution-streak widget is made"><img src="/widgets/streak.svg"    alt="contribution streak" width="420" height="170" loading="lazy"></a>
+    <a href="https://github.com/Nitjsefnie/gh-widgets" rel="noopener" aria-label="see how the top-languages widget is made"><img src="/widgets/languages.svg" alt="top languages"       width="420" height="230" loading="lazy"></a>
+    <p class="widget-note">self-hosted · rendered hourly · click any card to see <a href="https://github.com/Nitjsefnie/gh-widgets" rel="noopener">how it's made</a></p>
   </div>
 
   <div class="prompt">
     <span class="user">nitjsefnie</span><span class="at">@</span><span class="host">ns118886</span><span class="at">:</span><span class="path">~</span><span class="sigil">$</span>
-    <span class="cursor"></span>
+    <span class="cursor" aria-hidden="true"></span>
   </div>
 
   <footer>
     <span>// no client-side js. no analytics. self-hosted font.</span><br>
     <span>// widget data fetched hourly from github — third party by definition.</span><br>
     <span>// nginx + cloudflare log your ip. every webserver is a tracker.</span><br>
-    <span><span class="key">last rebuilt:</span> May 2026</span>
+    <span><span class="key">last rebuilt:</span> June 2026</span>
   </footer>
 
 </main>
