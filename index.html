@@ -168,24 +168,21 @@
       white-space: pre;
       user-select: none;
     }
-    /* A glyph only paints on the row's first line, so on rows whose description
-       wraps, the rail below it has to be drawn. Geometry comes from the font, so
-       it is the same stroke continued: │ draws x 250..350 of a 600-unit advance,
-       and 1ch IS that advance — hence 0.4167ch, 0.1667ch wide. `.k` is a grid
-       item, so it stretches to the full row height and the bar with it.
-       .ra = the level-1 rail continues past this row, .rb = the level-2 one. */
-    .tree .k { position: relative; }
-    .tree .ra .k::before,
-    .tree .rb .k::after {
-      content: "";
+    /* A glyph only paints on the row's first line, so rows whose description wraps
+       need the rail carried on underneath. Continue it with the same characters —
+       same font, same stroke, nothing to align by hand. The continuation is
+       positioned out of flow so it never adds row height (a row is as tall as its
+       description), carries more lines than any wrap needs, and `.k` clips the
+       rest at the row boundary. */
+    .tree .k { position: relative; overflow: hidden; }
+    .tree .c {
       position: absolute;
-      top: calc(1.5em - 1px);   /* 1.5em = one line box, per line-height above */
-      bottom: 0;
-      width: 0.1667ch;
-      background: var(--fg-dim);
+      top: 1.5em;        /* the second line box, per line-height above */
+      left: 0;
+      color: var(--fg-dim);
+      white-space: pre;
+      user-select: none;
     }
-    .tree .ra .k::before { left: 0.4167ch; }
-    .tree .rb .k::after  { left: 4.4167ch; }
     /* the ├── glyph is already the pointer — drop .output's "→ " prefix here,
        it would also push the longest node past the 29ch column */
     .tree a::before, .tree a:hover::before { content: none; }
@@ -279,7 +276,7 @@
       .tree .v { padding-left: 4ch; }
       /* the collapsed grid puts each name on its own single line, so there is no
          row height left for a rail to continue down */
-      .tree .ra .k::before, .tree .rb .k::after { content: none; }
+      .tree .c { display: none; }
       .prompt { gap: 0.3rem; flex-wrap: wrap; }
       .prompt .cmd { width: 100%; }
     }
@@ -321,24 +318,24 @@
   <ul class="tree output">
     <li class="root"><span class="k">github/</span></li>
 
-    <li class="org ra"><span class="k"><span class="g">├── </span><a href="https://github.com/Nitjsefnie">Nitjsefnie/</a></span> <span class="v">personal account · 8 public repos</span></li>
-    <li class="ra rb"><span class="k"><span class="g">│   ├── </span><a href="https://github.com/Nitjsefnie/nitjsefni.eu">nitjsefni.eu</a></span> <span class="v">source of this page — html, css, fonts. proves the "no browser-side js" claim</span></li>
-    <li class="ra rb"><span class="k"><span class="g">│   ├── </span><a href="https://github.com/Nitjsefnie/gh-widgets">gh-widgets</a></span> <span class="v">the svg cards below — cron-rendered, stdlib-only python, zero runtime api calls</span></li>
-    <li class="ra rb"><span class="k"><span class="g">│   ├── </span><a href="https://github.com/Nitjsefnie/Nitjsefnie">Nitjsefnie</a></span> <span class="v">the profile readme; embeds those same self-hosted svgs</span></li>
-    <li class="ra rb"><span class="k"><span class="g">│   ├── </span><a href="https://github.com/Nitjsefnie/docs-hub">docs-hub</a></span> <span class="v">versioned html-artifact hub my agents publish to</span></li>
-    <li class="ra rb"><span class="k"><span class="g">│   ├── </span><a href="https://github.com/Nitjsefnie/kimimeter">kimimeter</a></span> <span class="v">kimi code transcripts → postgres → fastapi dashboards: burn rate, cache split, latency</span></li>
-    <li class="ra rb"><span class="k"><span class="g">│   ├── </span><a href="https://github.com/Nitjsefnie/burn-usage-skill">burn-usage-skill</a></span> <span class="v">a reusable skill for running llm-driven open-source contribution drives</span></li>
-    <li class="ra rb"><span class="k"><span class="g">│   ├── </span><a href="https://github.com/Nitjsefnie/claudit">claudit</a></span> <span class="v">self-hosted claude code usage dashboard, ttl-correct cost accounting</span></li>
-    <li class="ra"><span class="k"><span class="g">│   └── </span><a href="https://github.com/Nitjsefnie/Stratz-Scraper">Stratz-Scraper</a></span> <span class="v">distributed dota 2 scraper — browser workers bfs through stratz's peer graph</span></li>
+    <li class="org ra"><span class="k"><span class="g">├── </span><a href="https://github.com/Nitjsefnie">Nitjsefnie/</a><span class="c" aria-hidden="true">│<br>│<br>│<br>│</span></span> <span class="v">personal account · 8 public repos</span></li>
+    <li class="ra rb"><span class="k"><span class="g">│   ├── </span><a href="https://github.com/Nitjsefnie/nitjsefni.eu">nitjsefni.eu</a><span class="c" aria-hidden="true">│   │<br>│   │<br>│   │<br>│   │</span></span> <span class="v">source of this page — html, css, fonts. proves the "no browser-side js" claim</span></li>
+    <li class="ra rb"><span class="k"><span class="g">│   ├── </span><a href="https://github.com/Nitjsefnie/gh-widgets">gh-widgets</a><span class="c" aria-hidden="true">│   │<br>│   │<br>│   │<br>│   │</span></span> <span class="v">the svg cards below — cron-rendered, stdlib-only python, zero runtime api calls</span></li>
+    <li class="ra rb"><span class="k"><span class="g">│   ├── </span><a href="https://github.com/Nitjsefnie/Nitjsefnie">Nitjsefnie</a><span class="c" aria-hidden="true">│   │<br>│   │<br>│   │<br>│   │</span></span> <span class="v">the profile readme; embeds those same self-hosted svgs</span></li>
+    <li class="ra rb"><span class="k"><span class="g">│   ├── </span><a href="https://github.com/Nitjsefnie/docs-hub">docs-hub</a><span class="c" aria-hidden="true">│   │<br>│   │<br>│   │<br>│   │</span></span> <span class="v">versioned html-artifact hub my agents publish to</span></li>
+    <li class="ra rb"><span class="k"><span class="g">│   ├── </span><a href="https://github.com/Nitjsefnie/kimimeter">kimimeter</a><span class="c" aria-hidden="true">│   │<br>│   │<br>│   │<br>│   │</span></span> <span class="v">kimi code transcripts → postgres → fastapi dashboards: burn rate, cache split, latency</span></li>
+    <li class="ra rb"><span class="k"><span class="g">│   ├── </span><a href="https://github.com/Nitjsefnie/burn-usage-skill">burn-usage-skill</a><span class="c" aria-hidden="true">│   │<br>│   │<br>│   │<br>│   │</span></span> <span class="v">a reusable skill for running llm-driven open-source contribution drives</span></li>
+    <li class="ra rb"><span class="k"><span class="g">│   ├── </span><a href="https://github.com/Nitjsefnie/claudit">claudit</a><span class="c" aria-hidden="true">│   │<br>│   │<br>│   │<br>│   │</span></span> <span class="v">self-hosted claude code usage dashboard, ttl-correct cost accounting</span></li>
+    <li class="ra"><span class="k"><span class="g">│   └── </span><a href="https://github.com/Nitjsefnie/Stratz-Scraper">Stratz-Scraper</a><span class="c" aria-hidden="true">│<br>│<br>│<br>│</span></span> <span class="v">distributed dota 2 scraper — browser workers bfs through stratz's peer graph</span></li>
 
-    <li class="org ra"><span class="k"><span class="g">├── </span><a href="https://github.com/Nitjsefnie-Games">Nitjsefnie-Games/</a></span> <span class="v">games and fabric mods · 7 public repos</span></li>
-    <li class="ra rb"><span class="k"><span class="g">│   ├── </span><a href="https://github.com/Nitjsefnie-Games/cultivated">cultivated</a></span> <span class="v">grow crops, trees and ores in pots — clean-room fabric take on botanypots</span></li>
-    <li class="ra rb"><span class="k"><span class="g">│   ├── </span><a href="https://github.com/Nitjsefnie-Games/spawner_harvest">spawner_harvest</a></span> <span class="v">silk-touch a spawner, keep the block plus a spawn egg of its mob</span></li>
-    <li class="ra rb"><span class="k"><span class="g">│   ├── </span><a href="https://github.com/Nitjsefnie-Games/Nonogram">Nonogram</a></span> <span class="v">picross solver — numba-jit line dp, contradiction probing, categorized webpbn corpus</span></li>
-    <li class="ra rb"><span class="k"><span class="g">│   ├── </span><a href="https://github.com/Nitjsefnie-Games/lightbench">lightbench</a></span> <span class="v">headless, engine-agnostic minecraft light-engine benchmark + byte-identical correctness gate</span></li>
-    <li class="ra rb"><span class="k"><span class="g">│   ├── </span><a href="https://github.com/Nitjsefnie-Games/shulker_enchantments">shulker_enchantments</a></span> <span class="v">siphon, refill, vacuum, void — four enchantments for shulker boxes</span></li>
-    <li class="ra rb"><span class="k"><span class="g">│   ├── </span><a href="https://github.com/Nitjsefnie-Games/lucky_fishing">lucky_fishing</a></span> <span class="v">the random fishing enchantment: a self-leveling rod that pulls up anything</span></li>
-    <li class="ra"><span class="k"><span class="g">│   └── </span><a href="https://github.com/Nitjsefnie-Games/robot-islands">robot-islands</a></span> <span class="v">browser factory game — vite + pixijs, per-island economies, drones, routes, skill tree</span></li>
+    <li class="org ra"><span class="k"><span class="g">├── </span><a href="https://github.com/Nitjsefnie-Games">Nitjsefnie-Games/</a><span class="c" aria-hidden="true">│<br>│<br>│<br>│</span></span> <span class="v">games and fabric mods · 7 public repos</span></li>
+    <li class="ra rb"><span class="k"><span class="g">│   ├── </span><a href="https://github.com/Nitjsefnie-Games/cultivated">cultivated</a><span class="c" aria-hidden="true">│   │<br>│   │<br>│   │<br>│   │</span></span> <span class="v">grow crops, trees and ores in pots — clean-room fabric take on botanypots</span></li>
+    <li class="ra rb"><span class="k"><span class="g">│   ├── </span><a href="https://github.com/Nitjsefnie-Games/spawner_harvest">spawner_harvest</a><span class="c" aria-hidden="true">│   │<br>│   │<br>│   │<br>│   │</span></span> <span class="v">silk-touch a spawner, keep the block plus a spawn egg of its mob</span></li>
+    <li class="ra rb"><span class="k"><span class="g">│   ├── </span><a href="https://github.com/Nitjsefnie-Games/Nonogram">Nonogram</a><span class="c" aria-hidden="true">│   │<br>│   │<br>│   │<br>│   │</span></span> <span class="v">picross solver — numba-jit line dp, contradiction probing, categorized webpbn corpus</span></li>
+    <li class="ra rb"><span class="k"><span class="g">│   ├── </span><a href="https://github.com/Nitjsefnie-Games/lightbench">lightbench</a><span class="c" aria-hidden="true">│   │<br>│   │<br>│   │<br>│   │</span></span> <span class="v">headless, engine-agnostic minecraft light-engine benchmark + byte-identical correctness gate</span></li>
+    <li class="ra rb"><span class="k"><span class="g">│   ├── </span><a href="https://github.com/Nitjsefnie-Games/shulker_enchantments">shulker_enchantments</a><span class="c" aria-hidden="true">│   │<br>│   │<br>│   │<br>│   │</span></span> <span class="v">siphon, refill, vacuum, void — four enchantments for shulker boxes</span></li>
+    <li class="ra rb"><span class="k"><span class="g">│   ├── </span><a href="https://github.com/Nitjsefnie-Games/lucky_fishing">lucky_fishing</a><span class="c" aria-hidden="true">│   │<br>│   │<br>│   │<br>│   │</span></span> <span class="v">the random fishing enchantment: a self-leveling rod that pulls up anything</span></li>
+    <li class="ra"><span class="k"><span class="g">│   └── </span><a href="https://github.com/Nitjsefnie-Games/robot-islands">robot-islands</a><span class="c" aria-hidden="true">│<br>│<br>│<br>│</span></span> <span class="v">browser factory game — vite + pixijs, per-island economies, drones, routes, skill tree</span></li>
 
     <li class="org"><span class="k"><span class="g">└── </span><a href="https://github.com/BrainByteQuiz">BrainByteQuiz/</a></span> <span class="v">university project, archived · 1 public repo</span></li>
     <li><span class="k"><span class="g">    └── </span><a href="https://github.com/BrainByteQuiz/BrainByte-server">BrainByte-server</a></span> <span class="v">2023 quiz backend — express + prisma, jwt auth, image uploads</span></li>
