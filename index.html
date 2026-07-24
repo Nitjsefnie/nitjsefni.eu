@@ -220,6 +220,8 @@
       transform: translateY(-1px);
       box-shadow: 0 4px 16px rgba(122,162,247,0.15);
     }
+    /* these anchors wrap an image, not text — no "→ " prefix to point at anything */
+    .widgets a::before, .widgets a:hover::before { content: none; }
     .widgets img {
       display: block;
       max-width: 100%;
