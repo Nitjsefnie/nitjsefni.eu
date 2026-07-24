@@ -164,6 +164,9 @@
       white-space: pre;
       user-select: none;
     }
+    /* the ├── glyph is already the pointer — drop .output's "→ " prefix here,
+       it would also push the longest node past the 29ch column */
+    .tree a::before, .tree a:hover::before { content: none; }
     .tree .root .k  { color: var(--purple); }
     .tree .org .k a { color: var(--blue); font-weight: 500; }
     .tree .org .v   { color: var(--comment); }
