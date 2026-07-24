@@ -149,7 +149,11 @@
       padding: 0.1rem 0;
     }
     .whoami li  { grid-template-columns: 11ch 1fr; }
-    .tree li    { grid-template-columns: 29ch 1fr; }
+    /* The box-drawing glyphs paint 1.52em tall (JetBrains Mono: │ spans
+       y -400..1120 at 1000 upem), so consecutive rows only join if the row
+       pitch stays under that — hence line-height 1.5 and no row padding.
+       Still breaks wherever a description wraps to a second line. */
+    .tree li    { grid-template-columns: 29ch 1fr; line-height: 1.5; padding: 0; }
     .contact li { grid-template-columns: 9ch 1fr; }
     .whoami .k, .tree .k, .contact .k { color: var(--comment); }
     .whoami .v, .tree .v, .contact .v { color: var(--fg); }
