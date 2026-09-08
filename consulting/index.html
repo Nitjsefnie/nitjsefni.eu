@@ -1,0 +1,490 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="Fixed-scope engagements that configure and harden coding-agent setups: Claude Code and Codex rules, hooks and gates, CI provenance, and usage accounting.">
+<title>Peter Zmatek: coding-agent harness engineering</title>
+<style>
+:root {
+  --paper:  #f2f4f5;
+  --ink:    #152430;
+  --ink-2:  #4e626e;
+  --rule:   #c6d0d5;
+  --rule-2: #dde4e7;
+  --mark:   #7e6015;
+  --serif:  "Iowan Old Style", Charter, "Bitstream Charter", "Sitka Text", Cambria, Georgia, serif;
+  --mono:   ui-monospace, "SF Mono", "DejaVu Sans Mono", Menlo, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --paper:  #0f171c;
+    --ink:    #dde5e9;
+    --ink-2:  #9aaab3;
+    --rule:   #2b3a43;
+    --rule-2: #1e2a31;
+    --mark:   #d3ae5e;
+  }
+}
+:root[data-theme="dark"] {
+  --paper:  #0f171c;
+  --ink:    #dde5e9;
+  --ink-2:  #9aaab3;
+  --rule:   #2b3a43;
+  --rule-2: #1e2a31;
+  --mark:   #d3ae5e;
+}
+
+* { box-sizing: border-box; }
+
+html { -webkit-text-size-adjust: 100%; }
+
+body {
+  margin: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--serif);
+  font-size: 1.0625rem;
+  line-height: 1.62;
+  text-rendering: optimizeLegibility;
+}
+
+.wrap { max-width: 58rem; margin: 0 auto; padding: 0 1.5rem; }
+
+a { color: inherit; text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 0.16em; text-decoration-color: var(--mark); }
+a:hover { color: var(--mark); }
+a:focus-visible { outline: 2px solid var(--mark); outline-offset: 3px; }
+
+h1, h2, h3 { font-weight: 600; }
+
+/* ---------------------------------------------------------- letterhead */
+
+.letterhead {
+  display: flex; flex-wrap: wrap; justify-content: space-between; gap: 0.35rem 2rem;
+  font-family: var(--mono); font-size: 0.78rem; letter-spacing: 0.01em;
+  color: var(--ink-2);
+  padding: 1.4rem 0 0.7rem;
+  border-bottom: 1px solid var(--rule);
+}
+
+/* ---------------------------------------------------------------- hero */
+
+.hero { padding: 3.2rem 0 3.6rem; }
+
+.hero h1 {
+  margin: 0;
+  max-width: 15ch;
+  font-size: clamp(2.5rem, 1.5rem + 4vw, 4.1rem);
+  line-height: 1.02;
+  letter-spacing: -0.022em;
+}
+
+.deck { max-width: 36rem; margin: 1.8rem 0 0; }
+.deck + .deck { margin-top: 0.9rem; }
+
+.register { margin: 2.4rem 0 0; max-width: 36rem; border-top: 1px solid var(--rule); }
+.reg {
+  display: flex; align-items: baseline; gap: 0.75rem;
+  padding: 0.5rem 0;
+  border-bottom: 1px solid var(--rule-2);
+}
+.reg dt { flex: 0 1 auto; }
+.reg dd { margin: 0; flex: 1 1 auto; display: flex; align-items: baseline; gap: 0.75rem; justify-content: flex-end; }
+.reg .val { font-family: var(--mono); font-size: 0.92em; color: var(--mark); text-align: right; }
+.leader { flex: 1 1 1.5rem; min-width: 0; height: 0; border-bottom: 1px dotted var(--rule); transform: translateY(-0.3em); }
+@media (max-width: 560px) { .leader { display: none; } }
+
+.cta { margin: 2.2rem 0 0; max-width: 36rem; font-size: 1.15rem; }
+
+/* ------------------------------------------------------------- bands */
+
+.band { position: relative; padding: 2.9rem 0; border-top: 1px solid var(--rule); }
+.band h2 { margin: 0; font-size: clamp(1.45rem, 1.15rem + 1vw, 1.9rem); line-height: 1.15; letter-spacing: -0.012em; }
+.band > p, .band > ul, .band > ol, .band > .shapes, .band > .stack { max-width: 36rem; }
+.band > p { margin: 1rem 0 0; }
+
+.note {
+  margin: 0.55rem 0 0;
+  font-size: 0.86rem; font-style: italic; line-height: 1.45;
+  color: var(--ink-2);
+  max-width: 30rem;
+}
+
+@media (min-width: 900px) {
+  .band { padding-left: 13rem; }
+  .band .note {
+    position: absolute; left: 0; top: 3.35rem;
+    width: 10.5rem; margin: 0;
+    text-align: right;
+  }
+}
+
+/* --------------------------------------------------------- engagements */
+
+.shapes { margin: 1.9rem 0 0; border-top: 1px solid var(--rule); }
+.shape { padding: 1.5rem 0 1.65rem; border-bottom: 1px solid var(--rule); }
+.shape h3 { margin: 0; font-size: 1.2rem; line-height: 1.3; }
+.shape-meta {
+  display: flex; flex-wrap: wrap; justify-content: space-between; gap: 0.2rem 1.5rem;
+  margin: 0.35rem 0 0;
+  font-family: var(--mono); font-size: 0.8rem; color: var(--ink-2);
+}
+.shape-meta .price { color: var(--mark); }
+
+.deliverables { margin: 0.95rem 0 0; padding: 0; list-style: none; }
+.deliverables li { position: relative; padding-left: 1.15rem; margin-top: 0.5rem; }
+.deliverables li::before {
+  content: ""; position: absolute; left: 0; top: 0.63em;
+  width: 0.38rem; height: 0.38rem; background: var(--mark);
+}
+
+.aside-line { margin: 1.6rem 0 0; max-width: 36rem; color: var(--ink-2); font-size: 0.97rem; }
+
+/* -------------------------------------------------------------- proof */
+
+.stack { margin: 1.6rem 0 0; padding: 0; list-style: none; }
+.stack li { padding: 0.85rem 0; border-bottom: 1px solid var(--rule-2); }
+.stack li:first-child { border-top: 1px solid var(--rule-2); }
+.slug { font-family: var(--mono); font-size: 0.85rem; }
+.stack p { margin: 0.25rem 0 0; }
+.sub { margin: 2.1rem 0 0.2rem; font-size: 1.02rem; font-weight: 600; }
+
+/* ------------------------------------------------------------- steps */
+
+.steps { margin: 1.7rem 0 0; padding: 0; list-style: none; counter-reset: step; }
+.steps li { position: relative; padding: 0 0 0 3rem; margin-top: 1.35rem; counter-increment: step; }
+.steps li::before {
+  content: counter(step, decimal-leading-zero);
+  position: absolute; left: 0; top: 0.1em;
+  font-family: var(--mono); font-size: 0.85rem; color: var(--mark);
+}
+.steps h3 { margin: 0; font-size: 1.05rem; }
+.steps p { margin: 0.2rem 0 0; }
+
+/* ---------------------------------------------------------------- fit */
+
+.fit { display: grid; grid-template-columns: 1fr; gap: 1.8rem 2.4rem; margin: 1.7rem 0 0; max-width: 36rem; }
+@media (min-width: 720px) { .fit { grid-template-columns: 1fr 1fr; } }
+.fit h3 { margin: 0 0 0.6rem; font-size: 1.05rem; }
+.fit ul { margin: 0; padding: 0; list-style: none; }
+.fit li { position: relative; padding-left: 1.15rem; margin-top: 0.5rem; font-size: 0.99rem; }
+.fit li::before {
+  content: ""; position: absolute; left: 0; top: 0.63em;
+  width: 0.38rem; height: 0.38rem; background: var(--mark);
+}
+.fit .not li::before { background: none; border: 1px solid var(--rule); }
+
+/* ------------------------------------------------------------ contact */
+
+.contact { margin: 1.5rem 0 0; padding: 0; list-style: none; font-family: var(--mono); font-size: 0.92rem; }
+.contact li { padding: 0.45rem 0; border-bottom: 1px solid var(--rule-2); max-width: 36rem; }
+.contact li:first-child { border-top: 1px solid var(--rule-2); }
+.contact .label { color: var(--ink-2); display: inline-block; min-width: 8rem; padding-right: 0.75rem; }
+
+.kit { margin: 1.9rem 0 0; max-width: 36rem; font-size: 0.97rem; color: var(--ink-2); }
+
+.colophon {
+  margin: 0; padding: 1.6rem 0 3rem;
+  border-top: 1px solid var(--rule);
+  font-family: var(--mono); font-size: 0.75rem; color: var(--ink-2);
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="letterhead">
+    <span>Peter Zmatek, software developer, Brno</span>
+    <span>Coding-agent harness engineering</span>
+  </header>
+
+  <section class="hero">
+    <h1>Rules your coding agents cannot skip.</h1>
+    <p class="deck">I set up Claude Code and Codex for teams the way you would set up a build
+      system. Written rules the agent reads at the start of every session, hooks that refuse a
+      tool call breaking one of them, CI that checks what actually got pushed, and a dashboard
+      that shows what the runs cost. Fixed scope, fixed price, and everything ships as plain
+      files in your own repository.</p>
+    <p class="deck">The same method, applied to repositories I had never seen before:</p>
+
+    <dl class="register">
+      <div class="reg">
+        <dt>Pull requests merged into external repositories</dt>
+        <dd><span class="leader" aria-hidden="true"></span><span class="val">442</span></dd>
+      </div>
+      <div class="reg">
+        <dt>Distinct repositories that accepted them</dt>
+        <dd><span class="leader" aria-hidden="true"></span><span class="val">60</span></dd>
+      </div>
+      <div class="reg">
+        <dt>Languages of those repositories</dt>
+        <dd><span class="leader" aria-hidden="true"></span><span class="val">Rust, Go, Python, Java, C</span></dd>
+      </div>
+      <div class="reg">
+        <dt>Counted on</dt>
+        <dd><span class="leader" aria-hidden="true"></span><span class="val">2026-09-08</span></dd>
+      </div>
+    </dl>
+
+    <p class="cta">Start by writing to
+      <a href="mailto:zmatek.peter@gmail.com">zmatek.peter@gmail.com</a> with your repository,
+      your team size, and the agents you run today.</p>
+  </section>
+
+  <section class="band" id="engagements">
+    <h2>What you get</h2>
+    <p class="note">Scope and price are agreed in writing before any work starts. Pick one, or
+      start with the audit and decide afterwards.</p>
+
+    <div class="shapes">
+
+      <article class="shape">
+        <h3>Harness audit</h3>
+        <p class="shape-meta">
+          <span>2 to 3 days of work, inside one week</span>
+          <span class="price">1,200 EUR, fixed</span>
+        </p>
+        <ul class="deliverables">
+          <li>A read of your current agent configuration: instruction files, skills, permissions
+            and hooks, and what each one actually blocks rather than what it says.</li>
+          <li>A pass over recent agent sessions for the failures that repeat, such as work pushed
+            without review, conventions ignored, and tool calls that should have been refused.</li>
+          <li>A written findings list ordered by what each failure costs you, with the fix for
+            each one and the effort it takes.</li>
+          <li>A written walkthrough of the findings for your engineers, with one round of
+            follow-up questions answered.</li>
+        </ul>
+      </article>
+
+      <article class="shape">
+        <h3>Harness build</h3>
+        <p class="shape-meta">
+          <span>2 to 3 weeks</span>
+          <span class="price">4,800 EUR, fixed</span>
+        </p>
+        <ul class="deliverables">
+          <li>Repository instruction files stating the rules your agents follow, written to be
+            loaded at the start of every session rather than pasted into a prompt.</li>
+          <li>A skill catalogue for the procedures your team repeats, so an agent runs your
+            procedure instead of inventing one each time.</li>
+          <li>Hooks that deny the tool calls which break a rule, where the denial names the
+            correct next step instead of just failing.</li>
+          <li>Commit, pull request and issue conventions, with the templates and local checks
+            that hold agent work to them.</li>
+          <li>An attribution trail: every commit an agent produced carries a co-author trailer,
+            verified before the push rather than after.</li>
+        </ul>
+      </article>
+
+      <article class="shape">
+        <h3>CI hardening and release provenance</h3>
+        <p class="shape-meta">
+          <span>1 to 2 weeks</span>
+          <span class="price">2,400 EUR, fixed</span>
+        </p>
+        <ul class="deliverables">
+          <li>A test workflow across the operating systems and language versions you actually
+            support, with coverage measured once rather than once per matrix cell.</li>
+          <li>Lint, type checking and static security analysis as separate checks, so a red build
+            names its own cause.</li>
+          <li>A dependency audit on a daily schedule, because a version you froze months ago
+            stops being safe with no commit of yours to hang the failure on.</li>
+          <li>Workflow linting with actionlint and zizmor: a broken workflow does not go red, it
+            silently stops running.</li>
+          <li>Releases that publish checksums and build attestations beside the artifact, so a
+            download can be traced back to the commit and the runner that built it.</li>
+        </ul>
+      </article>
+
+      <article class="shape">
+        <h3>Usage and cost accounting</h3>
+        <p class="shape-meta">
+          <span>1 to 2 weeks</span>
+          <span class="price">1,900 EUR, fixed</span>
+        </p>
+        <ul class="deliverables">
+          <li>A self-hosted dashboard over your team's agent transcripts, running on your
+            own machine and reading your own storage.</li>
+          <li>Cost by model, with cache creation priced at the correct 5 minute and 1 hour
+            tiers instead of a flat rate.</li>
+          <li>Token breakdown, tool error rate, reply latency and per-session context growth,
+            per model and per session.</li>
+          <li>Transcript ingest from object storage, so history that the agent CLI prunes
+            locally does not disappear from your numbers.</li>
+          <li>The parsers, the schema and the service unit, in your repository, with tests.</li>
+        </ul>
+      </article>
+
+    </div>
+
+    <p class="aside-line">Two things clients ask for that do not fit a fixed shape: an
+      agent-driven contribution pipeline into upstream repositories you depend on, and a browser
+      bridge so an agent can drive a real logged-in browser. Both are scoped per engagement.</p>
+  </section>
+
+  <section class="band" id="proof">
+    <h2>Track record</h2>
+    <p class="note">Every number and project below is public. The pull request counts were taken
+      on 2026-09-08.</p>
+
+    <p>Software developer in Brno since June 2024, building road-diagnostics
+      and quality-control software end to end: Python and Flask, data-processing pipelines,
+      computer vision in PyTorch run as containerised CUDA inference under Docker, and the SQL
+      layer under all of it. The agent work below runs alongside that, on public repositories.</p>
+
+    <h3 class="sub">Tools I built and run</h3>
+    <ul class="stack">
+      <li>
+        <a class="slug" href="https://github.com/Nitjsefnie-Harness-Commons/daedalus">Nitjsefnie-Harness-Commons/daedalus</a>
+        <p>A browser bridge for coding agents: MCP server, HTTP API and CLI behind a Chrome
+          extension, so an agent drives a real logged-in browser. JavaScript evaluation, Chrome
+          DevTools Protocol, cookies, network capture and screenshots. Releases ship checksums
+          and GitHub build attestations.</p>
+      </li>
+      <li>
+        <a class="slug" href="https://github.com/Nitjsefnie/claudit">Nitjsefnie/claudit</a>
+        <p>Self-hosted usage analytics for Claude Code: FastAPI and Postgres over transcripts
+          ingested from object storage, with a live-updating React dashboard covering cost by
+          model, token and cache-tier breakdown, reply latency and tool error rate.</p>
+      </li>
+      <li>
+        <a class="slug" href="https://github.com/Nitjsefnie/kimimeter">Nitjsefnie/kimimeter</a>
+        and
+        <a class="slug" href="https://github.com/Nitjsefnie/codexmeter">Nitjsefnie/codexmeter</a>
+        <p>The same dashboard for the Kimi and Codex command-line agents, each with its own
+          model-rate catalogue and hourly ingest.</p>
+      </li>
+      <li>
+        <a class="slug" href="https://github.com/Nitjsefnie-Harness-Commons/session-parsers">Nitjsefnie-Harness-Commons/session-parsers</a>
+        <p>Transcript parsers for Claude Code, Kimi and Codex sessions. Tested across three
+          operating systems and three Python versions, with a coverage ratchet, workflow linting,
+          and wheels published beside a checksum file.</p>
+      </li>
+      <li>
+        <a class="slug" href="https://github.com/Nitjsefnie/gh-widgets">Nitjsefnie/gh-widgets</a>
+        <p>Profile widgets rendered to static SVG on a timer, in the Python standard library
+          alone, so a rate-limited API cannot leave a broken image in a README.</p>
+      </li>
+      <li>
+        <a class="slug" href="https://github.com/Nitjsefnie/ai-researcher">Nitjsefnie/ai-researcher</a>
+        <p>Tracks frontier models and publishes capability against measured cost per task. The
+          fetcher exits nonzero when the upstream page changes shape, rather than publishing a
+          number nobody checked.</p>
+      </li>
+    </ul>
+
+    <h3 class="sub">Merged into other people's repositories</h3>
+    <ul class="stack">
+      <li>
+        <a class="slug" href="https://github.com/tafia/calamine">tafia/calamine</a>
+        <p>Rust spreadsheet reader, 2.4k stars. Fixed a cell leak from embedded charts.</p>
+      </li>
+      <li>
+        <a class="slug" href="https://github.com/piperbox/piper">piperbox/piper</a>
+        <p>Go platform-as-a-service, 23 merged. Bounded the tunnel handshake, rate-limited
+          logins per IP, made wildcard TLS hot-reloadable.</p>
+      </li>
+      <li>
+        <a class="slug" href="https://github.com/InauguralSystems/EigenScript">InauguralSystems/EigenScript</a>
+        <p>A language and virtual machine in C, 36 merged. Enforced switch exhaustiveness across
+          the compiler, fixed JSON parser over-reads, bounded the sandbox, added LSP
+          diagnostics.</p>
+      </li>
+      <li>
+        <a class="slug" href="https://github.com/OpenAgentHQ/openagent-eval">OpenAgentHQ/openagent-eval</a>
+        <p>Python retrieval evaluation, 21 merged. Fixed an nDCG off-by-one, executor
+          cancellation, and a lossy config migration.</p>
+      </li>
+      <li>
+        <a class="slug" href="https://github.com/packit/ogr">packit/ogr</a>
+        and
+        <a class="slug" href="https://github.com/raine/claude-code-proxy">raine/claude-code-proxy</a>
+        <p>Also merged into Red Hat's Packit and into a proxy for Claude Code.</p>
+      </li>
+    </ul>
+  </section>
+
+  <section class="band" id="process">
+    <h2>How it works</h2>
+    <p class="note">The work is asynchronous: scoping, quote, delivery and handover all happen in writing.</p>
+
+    <ol class="steps">
+      <li>
+        <h3>Scoping</h3>
+        <p>You send a short brief by email: the repository, the team, the agents you run, and
+          what is going wrong. I ask what I need to quote it, by email, usually within one
+          working day.</p>
+      </li>
+      <li>
+        <h3>Fixed quote</h3>
+        <p>A written scope narrowing the deliverables above to your situation, with one price,
+          a start date and an end date. Nothing begins until you accept it in writing.</p>
+      </li>
+      <li>
+        <h3>Delivery</h3>
+        <p>Work arrives as commits on a branch in your repository, one logical change each, with
+          a running note of what changed and why. You can stop at any point and keep everything
+          that has landed.</p>
+      </li>
+      <li>
+        <h3>Handover</h3>
+        <p>A written runbook for extending the setup yourselves, plus a written question
+          round afterwards. Everything is plain files in your repository, with nothing of mine left to pay
+          for.</p>
+      </li>
+    </ol>
+  </section>
+
+  <section class="band" id="fit">
+    <h2>Who this is for</h2>
+    <p class="note">If the right-hand list describes you, say so in the first email and we both
+      save the time.</p>
+
+    <div class="fit">
+      <div>
+        <h3>Worth writing to me</h3>
+        <ul>
+          <li>Your team already runs Claude Code or Codex daily, and someone is policing the
+            output by hand.</li>
+          <li>You have CI, and you want agent work to pass the same gates as human work.</li>
+          <li>You cannot currently say what a month of agent usage cost, per model or per
+            repository.</li>
+          <li>You want the setup to be yours afterwards, in files you can read and change.</li>
+        </ul>
+      </div>
+      <div class="not">
+        <h3>Not a fit</h3>
+        <ul>
+          <li>You want agents running without gates or review. The method here is refusing the
+            work that breaks a rule.</li>
+          <li>There is no repository to work in, or configuration and transcripts cannot be
+            shared under an agreement.</li>
+          <li>You are looking to buy model access or agent subscriptions. I configure what you
+            already pay for.</li>
+          <li>You want a finished application built for you. This is tooling around your
+            engineers, not a replacement for them.</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <section class="band" id="contact">
+    <h2>Contact</h2>
+    <p class="note">Based in Brno, Czech Republic. Languages: Slovak, Czech, English.</p>
+
+    <ul class="contact">
+      <li><span class="label">Email</span><a href="mailto:zmatek.peter@gmail.com">zmatek.peter@gmail.com</a></li>
+      <li><span class="label">LinkedIn</span><a href="https://www.linkedin.com/in/peter-zmatek/">linkedin.com/in/peter-zmatek</a></li>
+      <li><span class="label">GitHub</span><a href="https://github.com/Nitjsefnie">github.com/Nitjsefnie</a></li>
+      <li><span class="label">Earliest start</span>The Monday after a quote is accepted.</li>
+    </ul>
+
+    <p class="kit">Also interested in a self-serve harness kit? <a href="mailto:zmatek.peter@gmail.com?subject=Harness%20kit%20waitlist">Email me with the subject "harness kit"</a> and I will write when it exists.</p>
+  </section>
+
+  <p class="colophon">Peter Zmatek, Brno, Czech Republic.</p>
+
+</div>
+</body>
+</html>
