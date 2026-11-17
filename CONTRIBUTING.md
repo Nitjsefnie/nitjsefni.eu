@@ -73,8 +73,10 @@ at.
 ## Pull requests
 
 Small and single-purpose. Include what changed and why, and a screenshot
-for anything visual. `fonts/` is JetBrains Mono under Apache-2.0 — the
-source in this repo is MIT, and that split stays as it is.
+for anything visual. `fonts/` is JetBrains Mono under the SIL Open Font
+License 1.1, copyright The JetBrains Mono Project Authors (licence text in
+`fonts/OFL.txt`) — the source in this repo is MIT, and that split stays
+as it is.
 
 Take the issue first by commenting `/claim` on it. The PR description
 follows `.github/PULL_REQUEST_TEMPLATE.md` and names that issue under

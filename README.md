@@ -14,9 +14,11 @@ and writes the SVGs into `/widgets/` on this server.
 | Path | What |
 |---|---|
 | `index.html` | The whole page. ~14 KB. |
-| `fonts/` | Five [JetBrains Mono](https://github.com/JetBrains/JetBrainsMono) woff2 weights (Apache-2.0, ~95 KB each). Served from `/fonts/` instead of Google Fonts so the page has zero third-party requests. |
+| `fonts/` | Five [JetBrains Mono](https://github.com/JetBrains/JetBrainsMono) woff2 weights (SIL Open Font License 1.1, ~95 KB each; licence text in `fonts/OFL.txt`). Served from `/fonts/` instead of Google Fonts so the page has zero third-party requests. |
 
 ## License
 
 The HTML/CSS source in this repo is MIT (do whatever, attribution appreciated).
-JetBrains Mono is Apache-2.0 by JetBrains.
+JetBrains Mono is under the SIL Open Font License 1.1, copyright The
+JetBrains Mono Project Authors; the licence text is in
+[`fonts/OFL.txt`](fonts/OFL.txt).
