@@ -14,7 +14,7 @@ and writes the SVGs into `/widgets/` on this server.
 
 | Path | What |
 |---|---|
-| `index.html` | The landing page: markup and CSS in one file. 21.9 KiB. |
+| `index.html` | The landing page: markup and CSS in one file. 22.2 KiB. |
 | `consulting/index.html` | The consulting offer page, linked from the landing page's contact list. One self-contained file. |
 | `consulting/gig-image.png` | An image served from this site for an external service listing; no page references it. |
 | `fonts/` | Five [JetBrains Mono](https://github.com/JetBrains/JetBrainsMono) woff2 weights (SIL Open Font License 1.1, ~95 KB each; licence text in `fonts/OFL.txt`). Served from `/fonts/` instead of Google Fonts so the page has zero third-party requests. |
