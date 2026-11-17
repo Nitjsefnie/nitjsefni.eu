@@ -41,9 +41,10 @@ be declined however well it is built:
   reason. The GitHub stat widgets are static SVGs served from the same
   origin, rendered out-of-band by
   [`gh-widgets`](https://github.com/Nitjsefnie/gh-widgets).
-- **One file.** The page is `index.html`, all of it — markup and CSS
-  together. No build step, no preprocessor, no framework, no splitting the
-  CSS into a separate stylesheet.
+- **One file per page.** Each page (`index.html` and
+  `consulting/index.html`) is a single self-contained file, all of it —
+  markup and CSS together. No build step, no preprocessor, no framework, no
+  splitting the CSS into a separate stylesheet.
 
 ## Getting it running
 
@@ -66,8 +67,8 @@ at.
 - Semantic HTML first; classes only where a selector genuinely needs one.
 - CSS custom properties for colours. Both light and dark schemes must work
   — the page follows `prefers-color-scheme`.
-- The page is ~14 KB. Keep it that way; a change that adds a lot of weight
-  needs to be worth it.
+- Each page is under 24 KiB. Keep it that way; a change that adds a lot of
+  weight needs to be worth it.
 - No linter, no formatter. Match the surrounding file.
 
 ## Pull requests

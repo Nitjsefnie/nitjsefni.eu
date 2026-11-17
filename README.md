@@ -2,7 +2,8 @@
 
 Source of [https://nitjsefni.eu/](https://nitjsefni.eu/) — my personal landing page.
 
-A single hand-rolled HTML file plus a self-hosted webfont. Pure HTML + CSS,
+Two hand-rolled HTML pages (the landing page and a consulting offer page)
+plus a self-hosted webfont. Pure HTML + CSS,
 no browser-side JavaScript, no third-party requests at page-load time, no
 analytics. The
 "GitHub stats" widgets on the page are SVGs rendered by a separate cron job;
@@ -13,7 +14,9 @@ and writes the SVGs into `/widgets/` on this server.
 
 | Path | What |
 |---|---|
-| `index.html` | The whole page. ~14 KB. |
+| `index.html` | The landing page: markup and CSS in one file. 21.9 KiB. |
+| `consulting/index.html` | The consulting offer page, linked from the landing page's contact list. One self-contained file. |
+| `consulting/gig-image.png` | An image served from this site for an external service listing; no page references it. |
 | `fonts/` | Five [JetBrains Mono](https://github.com/JetBrains/JetBrainsMono) woff2 weights (SIL Open Font License 1.1, ~95 KB each; licence text in `fonts/OFL.txt`). Served from `/fonts/` instead of Google Fonts so the page has zero third-party requests. |
 
 ## License
