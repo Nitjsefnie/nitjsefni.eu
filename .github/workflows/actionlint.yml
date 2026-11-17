@@ -1,0 +1,59 @@
+name: actionlint
+
+# No path filter: a required check whose workflow never runs blocks merges.
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: actionlint-${{ github.event_name == 'push' && github.sha || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  actionlint:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    env:
+      # Fork build: stock 1.7.12 rejects the concurrency `queue` key claim.yml uses.
+      NITJSEFNI_EU_ACTIONLINT_VERSION: 1.7.12-queue.1
+      NITJSEFNI_EU_ACTIONLINT_REPO: Nitjsefnie-OSC/actionlint
+      NITJSEFNI_EU_ACTIONLINT_SHA256: dcc2c42a7caaa197dfe63584a3851f62ef260f80b2cf221baaf05479661e1521
+
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
+        with:
+          python-version: "3.15"
+
+      - name: Install actionlint
+        run: |
+          tarball="actionlint_${NITJSEFNI_EU_ACTIONLINT_VERSION}_linux_amd64.tar.gz"
+          .github/scripts/download.sh \
+            "https://github.com/${NITJSEFNI_EU_ACTIONLINT_REPO}/releases/download/v${NITJSEFNI_EU_ACTIONLINT_VERSION}/${tarball}" "$tarball"
+          echo "${NITJSEFNI_EU_ACTIONLINT_SHA256}  ${tarball}" | sha256sum -c -
+          tar -xzf "$tarball" actionlint
+          ./actionlint --version
+
+      - name: Install zizmor
+        id: install_zizmor
+        run: |
+          .github/scripts/retry.sh python3 -m pip install --require-hashes --only-binary=:all: -r .github/workflows/requirements.txt
+
+      - name: actionlint
+        run: ./actionlint -color .github/workflows/*.yml
+
+      - name: zizmor
+        # Not after a failed install, which would pass as a clean audit.
+        if: ${{ !cancelled() && steps.install_zizmor.outcome == 'success' }}
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: zizmor --no-progress .github/workflows/

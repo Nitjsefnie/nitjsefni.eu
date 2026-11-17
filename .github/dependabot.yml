@@ -1,0 +1,31 @@
+version: 2
+updates:
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+      day: wednesday
+      time: "04:23"
+      timezone: Etc/UTC
+    commit-message:
+      prefix: ci
+      include: scope
+    # A group covers version updates only unless it sets `applies-to`.
+    groups:
+      github-actions:
+        patterns:
+          - "*"
+      github-actions-security:
+        applies-to: security-updates
+        patterns:
+          - "*"
+  - package-ecosystem: pip
+    directory: "/.github/workflows"
+    schedule:
+      interval: weekly
+      day: wednesday
+      time: "04:23"
+      timezone: Etc/UTC
+    commit-message:
+      prefix: ci
+      include: scope
