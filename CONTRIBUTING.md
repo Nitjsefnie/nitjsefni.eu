@@ -52,8 +52,9 @@ be declined however well it is built:
 python3 -m http.server 8000
 ```
 
-Then open <http://localhost:8000/>. Opening `index.html` directly off disk
-works too; the fonts resolve either way.
+Then open <http://localhost:8000/>. Serve the site this way rather than
+opening `index.html` off disk: it loads its fonts from root-absolute `/fonts/`
+URLs, which only resolve under a server.
 
 ## Tests
 
