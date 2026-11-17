@@ -52,7 +52,8 @@ jobs:
         run: ./actionlint -color .github/workflows/*.yml
 
       - name: zizmor
-        # Not after a failed install, which would pass as a clean audit.
+        # Runs even when actionlint is red; not after a failed install,
+        # whose missing binary would read as a zizmor failure.
         if: ${{ !cancelled() && steps.install_zizmor.outcome == 'success' }}
         env:
           GH_TOKEN: ${{ github.token }}
