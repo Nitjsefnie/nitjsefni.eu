@@ -75,3 +75,12 @@ at.
 Small and single-purpose. Include what changed and why, and a screenshot
 for anything visual. `fonts/` is JetBrains Mono under Apache-2.0 — the
 source in this repo is MIT, and that split stays as it is.
+
+Take the issue first by commenting `/claim` on it. The PR description
+follows `.github/PULL_REQUEST_TEMPLATE.md` and names that issue under
+Related Issues and Pull Requests; the pr gate check fails until every
+closing issue is assigned to the PR author. Every commit subject follows
+[Conventional Commits 1.0.0](https://www.conventionalcommits.org/en/v1.0.0/):
+`type(scope)!: description`, the scope and `!` optional, the type one of
+`build`, `chore`, `ci`, `docs`, `feat`, `fix`, `perf`, `refactor`,
+`revert`, `style` or `test`.
