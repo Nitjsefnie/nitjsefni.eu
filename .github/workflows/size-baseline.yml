@@ -33,6 +33,7 @@ jobs:
           mode: 'auto'
           base-ref: ${{ github.event.pull_request.base.sha }}
           stale: 'warn'
+          # The action's default: a pull request that loosens a record gets a notice, not a failure; growth past a record still fails.
           require-tight: 'false'
           push-key: ${{ secrets.MASTER_PUSH_DEPLOY_KEY }}
           tree-budgets: 'tests/'
