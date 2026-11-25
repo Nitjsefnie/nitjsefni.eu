@@ -21,9 +21,9 @@ jobs:
 
     env:
       # Fork build: stock 1.7.12 rejects the concurrency `queue` key claim.yml uses.
-      NITJSEFNI_EU_ACTIONLINT_VERSION: 1.7.12-queue.1
+      NITJSEFNI_EU_ACTIONLINT_VERSION: 1.7.12-queue.3
       NITJSEFNI_EU_ACTIONLINT_REPO: Nitjsefnie-OSC/actionlint
-      NITJSEFNI_EU_ACTIONLINT_SHA256: dcc2c42a7caaa197dfe63584a3851f62ef260f80b2cf221baaf05479661e1521
+      NITJSEFNI_EU_ACTIONLINT_SHA256: 56693f8e7182360d8ecb67cbfc39cc674cde5d1b510507fff562b158bb4fc7bc
 
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
