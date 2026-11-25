@@ -5,7 +5,7 @@ updates:
     schedule:
       interval: weekly
       day: wednesday
-      time: "04:23"
+      time: "04:30"
       timezone: Etc/UTC
     commit-message:
       prefix: ci
@@ -24,7 +24,7 @@ updates:
     schedule:
       interval: weekly
       day: wednesday
-      time: "04:23"
+      time: "04:30"
       timezone: Etc/UTC
     commit-message:
       prefix: ci
