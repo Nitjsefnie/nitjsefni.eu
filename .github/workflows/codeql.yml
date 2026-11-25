@@ -1,7 +1,7 @@
 name: codeql
 
 on:
-  # No pull_request: SARIF would name an unscanned sha.
+  # No pull_request: push runs on every branch.
   push:
     paths-ignore:
       - '**/*.md'

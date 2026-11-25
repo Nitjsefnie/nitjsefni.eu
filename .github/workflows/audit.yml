@@ -44,7 +44,7 @@ jobs:
 
       - name: Audit dependencies
         # One run per manifest: a hash-pinned one beside an un-hashed one
-        # breaks a joint resolution. Only transport failures retry.
+        # breaks a joint resolution. Only transport/service failures retry.
         run: |
           shopt -s nullglob
           manifests=(.github/workflows/requirements*.txt)
