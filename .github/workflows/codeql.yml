@@ -1,0 +1,54 @@
+name: codeql
+
+on:
+  # No pull_request: SARIF would name an unscanned sha.
+  push:
+    paths-ignore:
+      - '**/*.md'
+      - 'LICENSE'
+      - '.gitignore'
+  schedule:
+    # Weekly: new queries only meet code changed since they shipped.
+    - cron: '47 3 * * 3'
+  workflow_dispatch:
+
+permissions: {}
+
+concurrency:
+  group: codeql-${{ github.event_name == 'push' && format('{0}-{1}', github.ref, github.sha) || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  analyze:
+    name: analyze (${{ matrix.language }})
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    permissions:
+      security-events: write
+      contents: read
+
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - language: actions
+            build-mode: none
+
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@1bd86f2fdb4b86187fa4059f16f31a3202acc9ea # v4.39.4
+        with:
+          languages: ${{ matrix.language }}
+          build-mode: ${{ matrix.build-mode }}
+          # Workflows run with write tokens.
+          queries: security-extended
+
+      - name: Analyze
+        uses: github/codeql-action/analyze@1bd86f2fdb4b86187fa4059f16f31a3202acc9ea # v4.39.4
+        with:
+          category: /language:${{ matrix.language }}
