@@ -1,0 +1,5 @@
+# pip-audit, installed by audit.yml. A manifest so Dependabot's pip entry sees
+# the pin. Not hash-pinned, unlike requirements.txt (installed with
+# --require-hashes by actionlint.yml): hashing pip-audit would pin its
+# transitive tree, and fresh transitives are what the audit judges.
+pip-audit==2.10.1

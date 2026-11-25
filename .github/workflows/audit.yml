@@ -1,0 +1,94 @@
+name: audit
+
+# The daily cron is the gate: an advisory can land against an unchanged pin.
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/requirements*.txt'
+  pull_request:
+    paths:
+      - '.github/workflows/requirements*.txt'
+  schedule:
+    # Other crons: codeql Wednesdays 03:47, scorecard Saturdays 02:23,
+    # secrets daily 05:26.
+    - cron: '12 4 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: audit-${{ github.event_name == 'push' && github.sha || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  pip-audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
+        with:
+          python-version: "3.15"
+
+      - name: Install pip-audit
+        # A manifest, since Dependabot ignores run blocks. No pip upgrade:
+        # it would be unaudited.
+        run: .github/scripts/retry.sh python -m pip install -r .github/workflows/requirements-pip-audit.txt
+
+      - name: Audit dependencies
+        # One run per manifest: a hash-pinned one beside an un-hashed one
+        # breaks a joint resolution. Only transport failures retry.
+        run: |
+          shopt -s nullglob
+          manifests=(.github/workflows/requirements*.txt)
+          if [ "${#manifests[@]}" -eq 0 ]; then
+            echo "no requirements*.txt manifest in .github/workflows/; nothing to audit" >&2
+            exit 1
+          fi
+
+          for manifest in "${manifests[@]}"; do
+            echo "auditing $manifest"
+            resolved=0
+            for attempt in 1 2 3; do
+              if pip-audit --progress-spinner off --requirement "$manifest" > audit.out 2>&1; then
+                cat audit.out
+                resolved=1
+                break
+              fi
+
+              if grep -qiE '4[0-9][0-9] Client Error' audit.out \
+                  && ! grep -qiE '429 (Client Error|Too Many Requests)' audit.out; then
+                echo "pip-audit failed with a non-retryable 4xx client error:" >&2
+                cat audit.out >&2
+                exit 1
+              fi
+
+              if grep -qiE 'connection (aborted|reset|error)|read timed out|temporary failure in name resolution' audit.out \
+                  || grep -qiE 'Could not connect to (PyPI|OSV).*vulnerability feed' audit.out \
+                  || grep -qiE '(^|[[:space:]])[[:alnum:]_.]*SSLError:' audit.out \
+                  || grep -qiE '5[0-9][0-9] Server Error|502 Bad Gateway|503 Service Unavailable|504 Gateway Timeout|429 (Client Error|Too Many Requests)' audit.out \
+                  || grep -qiE '(^|[[:space:]])(pip_audit\._service\.interface\.)?ServiceError:' audit.out; then
+                echo "attempt $attempt: transport/service failure, retrying"
+                tail -n 5 audit.out
+                sleep $(( attempt * 15 ))
+                continue
+              fi
+
+              echo "pip-audit reported findings:" >&2
+              cat audit.out >&2
+              exit 1
+            done
+
+            if [ "$resolved" -eq 0 ]; then
+              echo "pip-audit exhausted 3 attempts on $manifest after a transport/service failure:" >&2
+              cat audit.out >&2
+              exit 1
+            fi
+          done

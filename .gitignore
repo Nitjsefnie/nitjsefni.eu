@@ -27,3 +27,4 @@ consulting/*
 .github/workflows/*
 !.github/workflows/*.yml
 !.github/workflows/requirements.txt
+!.github/workflows/requirements-pip-audit.txt
