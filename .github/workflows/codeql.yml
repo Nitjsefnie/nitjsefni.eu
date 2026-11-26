@@ -26,7 +26,6 @@ jobs:
 
     permissions:
       security-events: write
-      # Fleet norm.
       actions: read
       contents: read
 
