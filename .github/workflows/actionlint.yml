@@ -30,6 +30,25 @@ jobs:
         with:
           persist-credentials: false
 
+      - name: Check every tracked shell file
+        run: git ls-files -z -- '*.sh' | xargs -0 --no-run-if-empty shellcheck
+
+      - name: Check no tracked file carries a merge-conflict marker
+        run: |
+          found=0
+          git grep -nI -E '^(<{7}( |$)|>{7}( |$)|={7}$)' -- . || found=$?
+          if [ "$found" -gt 1 ]; then
+            echo "git grep exited $found, so no marker was looked for."
+            exit "$found"
+          fi
+          if [ "$found" -eq 0 ]; then
+            echo "A merge-conflict marker is committed. Resolve the conflict, rebase onto the target branch and push again."
+            exit 1
+          fi
+
+      # No base-freshness check: a pull_request run executes the merge ref.
+      # No commit-scope check: CONTRIBUTING.md carries no scope table.
+
       - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
         with:
           python-version: "3.15"
@@ -52,8 +71,7 @@ jobs:
         run: ./actionlint -color .github/workflows/*.yml
 
       - name: zizmor
-        # Runs even when actionlint is red; not after a failed install,
-        # whose missing binary would read as a zizmor failure.
+        # Runs even when actionlint is red; not after a failed install.
         if: ${{ !cancelled() && steps.install_zizmor.outcome == 'success' }}
         env:
           GH_TOKEN: ${{ github.token }}
