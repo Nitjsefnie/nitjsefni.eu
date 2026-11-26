@@ -49,8 +49,8 @@ jobs:
             exit 1
           fi
 
-      - name: Require this head to carry main's gate-defining commits
-        # A base push never re-runs this pull request, so a head behind the base is refused.
+      - name: Require this head to carry the base branch's gate commits
+        # Only a run-time stale head is refused: a base push re-runs no pull_request workflow.
         if: github.event_name == 'pull_request'
         run: |
           git fetch --no-tags origin "$GITHUB_BASE_REF"
@@ -86,7 +86,8 @@ jobs:
         run: ./actionlint -color .github/workflows/*.yml
 
       - name: zizmor
-        # Runs even when actionlint is red; not after a failed install.
+        # Runs even when actionlint is red; not after a failed install,
+        # whose missing binary would read as a zizmor failure.
         if: ${{ !cancelled() && steps.install_zizmor.outcome == 'success' }}
         env:
           GH_TOKEN: ${{ github.token }}
