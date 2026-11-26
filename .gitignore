@@ -4,6 +4,7 @@
 !README.md
 !CONTRIBUTING.md
 !LICENSE
+!.gitleaks.toml
 !fonts/
 fonts/*
 !fonts/*.woff2
