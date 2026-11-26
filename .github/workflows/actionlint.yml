@@ -28,6 +28,7 @@ jobs:
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
           persist-credentials: false
           fetch-depth: 0
 
@@ -49,7 +50,7 @@ jobs:
           fi
 
       - name: Require this head to carry main's gate-defining commits
-        # A base push never re-runs this pull request: a green head can be stale.
+        # A base push never re-runs this pull request, so a head behind the base is refused.
         if: github.event_name == 'pull_request'
         run: |
           git fetch --no-tags origin "$GITHUB_BASE_REF"
