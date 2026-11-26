@@ -29,8 +29,10 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
+          fetch-depth: 0
 
       - name: Check every tracked shell file
+        shell: bash
         run: git ls-files -z -- '*.sh' | xargs -0 --no-run-if-empty shellcheck
 
       - name: Check no tracked file carries a merge-conflict marker
@@ -46,7 +48,19 @@ jobs:
             exit 1
           fi
 
-      # No base-freshness check: a pull_request run executes the merge ref.
+      - name: Require this head to carry main's gate-defining commits
+        # A base push never re-runs this pull request: a green head can be stale.
+        if: github.event_name == 'pull_request'
+        run: |
+          git fetch --no-tags origin "$GITHUB_BASE_REF"
+          stale="$(git rev-list HEAD..FETCH_HEAD -- .github)"
+          if [ -n "$stale" ]; then
+            echo "This branch is missing gate-defining commits from the base branch:"
+            git log --oneline HEAD..FETCH_HEAD -- .github
+            echo "Rebase onto the base branch and push again."
+            exit 1
+          fi
+
       # No commit-scope check: CONTRIBUTING.md carries no scope table.
 
       - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
