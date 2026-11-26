@@ -1,0 +1,7 @@
+# The [extend] line is load-bearing: it keeps gitleaks's default rules as
+# the gate. A file that replaced them would narrow the gate to nothing.
+#
+# The daily scan runs clean under the default rules, so no allowlist entry
+# exists.
+[extend]
+useDefault = true
